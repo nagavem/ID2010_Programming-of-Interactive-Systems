@@ -1,0 +1,10 @@
+Marcus Wallstersson kommenterade 16 februari 2013
+
+
+A tip for those who use the unix scripts for the labs!
+ 
+The unix scripts chatclient.sh and chatserver.sh could not be run (using OS X), gave me the error: -bash: ./chatserver.sh: /bin/sh^M: bad interpreter: No such file or directory
+ 
+The error occured due to dos line endings of the files. I corrected them to unix endings by using the command :set fileformat=unix in vim.
+ 
+http://stackoverflow.com/questions/2920416/configure-bin-shm-bad-interpreter
