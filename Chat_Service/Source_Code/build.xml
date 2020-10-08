@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 2018-08-23/fki Refactored for lab version 7 -->
+<!-- 07-feb-2008/FK Changes to installation paths. -->
+<!-- Build file for K2Lab. Written by Jesper Holmberg -->
+
+
+<!-- Define project name, and default target.
+Target "all" is run if no target is specified when run. -->
+
+<project basedir="." name="chat" default="all">
+
+  <!-- Define variables that we use later on -->
+  <property name="servercapsname" value = "ChatServer"/>
+  <property name="clientcapsname" value = "ChatClient"/>
+
+  <!-- Define locations for source and build trees. -->
+  <property name="dir.build" location="build"/>
+  <property name="dir.dist" location="dist"/>
+  <property name="dir.src" location="src"/>
+  <property name="dir.manifest" location="mf"/>
+
+  <!-- Define the location of our install codebase. -->
+  <property name="dir.cbs" location="../test/cbs"/>
+  <property name="dir.cbs.client" location="../test/cbs/client"/>
+  <property name="dir.cbs.server" location="../test/cbs/server"/>
+
+  <!-- Define the total classpath for the project.-->
+  <path id="project.class.path">
+    <!-- Include all JAR-files in the lib-directory. -->
+    <fileset dir="lib">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="init" description="Create build-directories">
+    <!-- Create the build and dist directories if they don't exist. -->
+    <mkdir dir="${dir.build}"/>
+    <mkdir dir="${dir.dist}"/>
+  </target>
+  
+  <target name="compile" depends="init" description="Compile source code">
+    <!-- Compile all code in the source directory, put class files in
+         build directory. -->
+    <javac debug="true"
+           deprecation="true"
+	   destdir="${dir.build}"
+	   srcdir="${dir.src}">
+      <classpath refid="project.class.path"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile" description="Build JAR-files.">
+    <!-- We create two JAR-files, one for the server, one for the
+         client. -->
+
+    <jar basedir="${dir.build}" compress="true"
+         destfile="${dir.dist}/${clientcapsname}.jar"
+         manifest="${dir.manifest}/${clientcapsname}.manifest"
+         includes="**/ChatClient.class
+                   **/ChatNotification.class
+                   **/ChatServerInterface.class">
+    </jar>
+
+    <jar basedir="${dir.build}" compress="true"
+         destfile="${dir.dist}/${servercapsname}.jar"
+         manifest="${dir.manifest}/${servercapsname}.manifest"
+         includes="**/ChatServer.class
+                   **/ChatNotification.class
+                   **/ChatServerInterface.class
+                   **/ChatServer$$1.class">
+    </jar>
+  </target>
+
+  <!-- This is the default target. Its dependiencies make it run init,
+       compile, rmic and jar. -->
+  <target name="all" depends="jar" description="Build everything.">
+    <echo message="Application built!"/>
+  </target>
+
+  <!-- Install copies the JAR files to the correct location -->
+  <target name="install" depends="jar" description="Install jar-files.">
+    <!-- Install Jini middleware codebase -->
+    <copy todir="${dir.cbs}">
+      <fileset dir="./lib">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+    <!-- Install the chat client codebase -->
+    <copy todir="${dir.cbs}">
+      <fileset dir="./dist">
+        <include name="${clientcapsname}.jar"/>
+      </fileset>
+      <fileset dir="./lib">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+    <!-- Install the chat server codebase -->
+    <copy todir="${dir.cbs}">
+      <fileset dir="./dist">
+        <include name="${servercapsname}.jar"/>
+      </fileset>
+      <fileset dir="./lib">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+    <echo message="Application installed!"/>
+  </target>
+
+  <!-- Clean removes all created files and directories. -->
+  <target name="clean" description="Clean all build products.">
+    <delete file="${dir.dist}/${clientcapsname}.jar"/>
+    <delete file="${dir.dist}/${servercapsname}.jar"/>
+    <delete dir="${dir.build}"/>
+    <delete dir="${dir.dist}"/>
+    <delete dir="${dir.cbs}/${clientcapsname}.jar"/>
+    <delete dir="${dir.cbs}/${servercapsname}.jar"/>
+  </target>
+
+</project>
