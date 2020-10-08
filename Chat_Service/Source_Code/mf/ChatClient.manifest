@@ -1,0 +1,2 @@
+Main-Class: chat.client.ChatClient
+Class-Path: ChatClient.jar jini-core.jar jini-ext.jar reggie-dl.jar
